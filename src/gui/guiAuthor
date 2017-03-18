@@ -1,0 +1,168 @@
+/*
+ * 
+ * This class is created for the purpose of registering/creating a 
+ * person(Author or Reviewer)to CMS.
+ * 
+ */
+package contentManagementSystem.Gui;
+
+import contentManagementSystem.Person;
+import contentManagementSystem.dbConnection;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+/**
+ *
+ * @author Kariyawasam
+ */
+public class GuiAuthorRegistration extends JFrame {
+
+    private JLabel lblHeading;
+    private JLabel lblAuthorId;
+    private JLabel lblAuthorIdDisplay;
+    private JLabel lblAuthorName;
+    private JLabel lblAffaliation;
+    private JLabel lblAffaliationAddress;
+    private JLabel lblEmail;
+    private JLabel lblUserName;
+    private JLabel lblPassword;
+    private JTextField txtAuthorName;
+    private JTextField txtAffaliation;
+    private JTextField txtAffaliationAddress;
+    private JTextField txtEmail;
+    private JTextField txtUserName;
+    private JPasswordField txtPassword;
+    private JPanel area;
+    private JPanel buttonArea;
+    private JButton btnSubmit;
+    private JButton btnCancel;
+    private String type;
+
+    public GuiAuthorRegistration() {
+    }
+
+    public GuiAuthorRegistration(String type) {
+        super(type + " Registration");
+        this.type = type;
+        //JPanels 
+        area = new JPanel(new GridLayout(6, 1, 5, 5));
+        buttonArea = new JPanel();
+
+        //lables for text boxes
+        lblHeading = new JLabel("Content Management System",
+                SwingConstants.CENTER);
+        lblAuthorName = new JLabel("Author Name");
+        lblAffaliation = new JLabel("Affalition Name");
+        lblAffaliationAddress = new JLabel("Affalition Address");
+        lblEmail = new JLabel("Email");
+        lblUserName = new JLabel("User Name");
+        lblPassword = new JLabel("Password");
+
+        //text boxes
+        txtAuthorName = new JTextField(HEIGHT);
+        txtAffaliation = new JTextField();
+        txtAffaliationAddress = new JTextField();
+        txtEmail = new JTextField();
+        txtUserName = new JTextField();
+        txtPassword = new JPasswordField();
+
+        //butoons
+        btnSubmit = new JButton("Submit");
+        btnCancel = new JButton("Cancel");
+
+        //Action Listners
+        SubmitButtonHandler handler = new SubmitButtonHandler();
+        btnSubmit.addActionListener(handler);
+
+        //set font sizes
+        lblHeading.setFont(new Font(null, Font.BOLD, 16));
+
+        //add component to Jpanel
+        area.add(lblAuthorName);
+        area.add(txtAuthorName);
+        area.add(lblAffaliation);
+        area.add(txtAffaliation);
+        area.add(lblAffaliationAddress);
+        area.add(txtAffaliationAddress);
+        area.add(lblEmail);
+        area.add(txtEmail);
+        area.add(lblUserName);
+        area.add(txtUserName);
+        area.add(lblPassword);
+        area.add(txtPassword);
+
+        buttonArea.add(btnSubmit);
+        buttonArea.add(btnCancel);
+
+        //add Jpanels
+        area.setBorder(BorderFactory.createTitledBorder(type + " Details"));
+
+        add(lblHeading, BorderLayout.PAGE_START);
+        add(area, BorderLayout.CENTER);
+        add(buttonArea, BorderLayout.PAGE_END);
+
+        setSize(500, 330);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);//to get center of the screen
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        GuiAuthorRegistration NN = new GuiAuthorRegistration("Author");
+
+    }
+
+    //submit button handler onClick event
+    private class SubmitButtonHandler implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Person newPerson = new Person();
+
+            newPerson.setTypeId(getTypeId(type));
+            newPerson.setName(txtAuthorName.getText());
+            newPerson.setAffiliationName(txtAffaliation.getText());
+            newPerson.setAffiliationAddress(txtAffaliationAddress.getText());
+            newPerson.setEmail(txtEmail.getText());
+            newPerson.setUserName(txtUserName.getText());
+            newPerson.setPassWord(String.valueOf(txtPassword.getPassword()));
+
+            newPerson.register();
+
+        }
+
+        //get the type id from the database
+        private int getTypeId(String type) {
+            int typeId = 0;
+            dbConnection con = new dbConnection();
+            String query =
+                    "SELECT TypeId FROM type WHERE Category = \'" + type + "\'";
+            try {
+                ResultSet rs = con.select(query);
+
+                while (rs.next()) {
+                    typeId = rs.getInt(1);
+                }
+
+            } catch (SQLException ex) {
+                System.out.println(ex);
+            } finally {
+                con.close();
+            }
+            return typeId;
+        }
+    }
+}
